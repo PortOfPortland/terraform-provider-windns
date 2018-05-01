@@ -41,6 +41,6 @@ resource "windns" "dnscname" {
   record_name = "testcname1"
   record_type = "CNAME"
   zone_name = ".mydomain.com"
-  hostnamealias = "myhost1..mydomain.com"
+  hostnamealias = "myhost1.mydomain.com"
 }
 ```
