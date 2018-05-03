@@ -44,3 +44,9 @@ resource "windns" "dnscname" {
   hostnamealias = "myhost1.mydomain.com"
 }
 ```
+
+# Building
+0. Make sure you have $GOPATH set ($env:GOPATH='c:\wip\go' on Windows, etc)
+1. go get github.com\portofportland\terraform-provider-windns
+2. cd github.com\portofportland\terraform-provider-windns
+3. go build
