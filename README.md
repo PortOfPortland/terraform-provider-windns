@@ -32,7 +32,7 @@ provider "windns" {
 resource "windns" "dns" {
   record_name = "testentry1"
   record_type = "A"
-  zone_name = ".mydomain.com"
+  zone_name = "mydomain.com"
   ipv4address = "192.168.1.5"
 }
 
@@ -40,7 +40,7 @@ resource "windns" "dns" {
 resource "windns" "dnscname" {
   record_name = "testcname1"
   record_type = "CNAME"
-  zone_name = ".mydomain.com"
+  zone_name = "mydomain.com"
   hostnamealias = "myhost1.mydomain.com"
 }
 ```
