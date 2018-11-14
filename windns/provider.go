@@ -20,7 +20,7 @@ func Provider() terraform.ResourceProvider {
 			},
 			"password": &schema.Schema{
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PASSWORD", nil),
 				Description: "The password to connect to AD.",
 			},
@@ -33,9 +33,15 @@ func Provider() terraform.ResourceProvider {
 			"usessl": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("USESSL", true),
+				DefaultFunc: schema.EnvDefaultFunc("USESSL", false),
 				Description: "Whether or not to use HTTPS to connect to WinRM",
 			},
+                        "usessh": &schema.Schema{
+                                Type:        schema.TypeString,
+                                Optional:    true,
+                                DefaultFunc: schema.EnvDefaultFunc("USESSH", false),
+                                Description: "Whether or not to use SSH to connect to WinRM",
+                        },
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"windns": resourceWinDNSRecord(),
@@ -50,11 +56,13 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	if username == "" {
 		return nil, fmt.Errorf("The 'username' property was not specified.")
 	}
+	
+        usessh := d.Get("usessh").(string)
 
-	password := d.Get("password").(string)
-	if password == "" {
-		return nil, fmt.Errorf("The 'password' property was not specified.")
-	}
+        password := d.Get("password").(string)
+        if password == "" && usessh == "0" {
+                return nil, fmt.Errorf("The 'password' property was not specified and usessh was false.")
+        }
 
 	server := d.Get("server").(string)
 	if server == "" {
@@ -68,6 +76,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		password:	password,
 		server:		server,
 		usessl:		usessl,
+                usessh:         usessh,
 	}
 
 	return &client, nil
@@ -78,4 +87,5 @@ type DNSClient struct {
 	password	string
 	server		string
 	usessl		string
+        usessh          string
 }
