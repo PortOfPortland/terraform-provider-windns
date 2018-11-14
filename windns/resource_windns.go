@@ -3,7 +3,7 @@ package windns
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/portofportland/goWinRM"
+	"github.com/portofportland/goPSRemoting"
 
 	"errors"
 	"strings"
@@ -74,7 +74,7 @@ func resourceWinDNSRecordCreate(d *schema.ResourceData, m interface{}) error {
 			return errors.New("Unknown record type. This provider currently only supports 'A' and 'CNAME' records.")
 	}
 
-        _, err := goWinRM.RunWinRMCommand(client.username, client.password, client.server, psCommand, client.usessl)
+        _, err := goPSRemoting.RunPowershellCommand(client.username, client.password, client.server, psCommand, client.usessl, client.usessh)
 	if err != nil {
 		//something bad happened
 		return err
@@ -94,8 +94,8 @@ func resourceWinDNSRecordRead(d *schema.ResourceData, m interface{}) error {
 	record_name := d.Get("record_name").(string)
 
 	//Get-DnsServerResourceRecord -ZoneName "contoso.com" -Name "Host03" -RRType "A"
-	var psCommand string = "try { $record = Get-DnsServerResourceRecord -ZoneName " + zone_name + " -RRType " + record_type + " -Name " + record_name + "} catch { $record = '' }; if ($record) { write-host 'RECORD_FOUND' }"
-	_, err := goWinRM.RunWinRMCommand(client.username, client.password, client.server, psCommand, client.usessl)
+	var psCommand string = "try { $record = Get-DnsServerResourceRecord -ZoneName " + zone_name + " -RRType " + record_type + " -Name " + record_name + " -ErrorAction Stop } catch { $record = '''' }; if ($record) { write-host 'RECORD_FOUND' }"
+	_, err := goPSRemoting.RunPowershellCommand(client.username, client.password, client.server, psCommand, client.usessl, client.usessh)
 	if err != nil {
 		if !strings.Contains(err.Error(), "ObjectNotFound") {
 			//something bad happened
@@ -124,7 +124,7 @@ func resourceWinDNSRecordDelete(d *schema.ResourceData, m interface{}) error {
 	//Remove-DnsServerResourceRecord -ZoneName "contoso.com" -RRType "A" -Name "Host01"
 	var psCommand string = "Remove-DNSServerResourceRecord -ZoneName " + zone_name + " -RRType " + record_type + " -Name " + record_name + " -Confirm:$false -Force"
 
-        _, err := goWinRM.RunWinRMCommand(client.username, client.password, client.server, psCommand, client.usessl)
+        _, err := goPSRemoting.RunPowershellCommand(client.username, client.password, client.server, psCommand, client.usessl, client.usessh)
 	if err != nil {
 		//something bad happened
 		return err
