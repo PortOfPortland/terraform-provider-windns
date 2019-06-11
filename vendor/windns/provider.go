@@ -12,41 +12,11 @@ import (
 func Provider() terraform.ResourceProvider {
     return &schema.Provider{
         Schema: map[string]*schema.Schema{
-            "username": &schema.Schema{
-                Type:        schema.TypeString,
-                Required:    true,
-                DefaultFunc: schema.EnvDefaultFunc("USERNAME", nil),
-                Description: "Username to connect to AD.",
-            },
-            "password": &schema.Schema{
-                Type:        schema.TypeString,
-                Optional:    true,
-                DefaultFunc: schema.EnvDefaultFunc("PASSWORD", nil),
-                Description: "The password to connect to AD.",
-            },
             "domain_controller": &schema.Schema{
                 Type:        schema.TypeString,
                 Optional:    true,
                 DefaultFunc: schema.EnvDefaultFunc("DOMAIN_CONTROLLER", nil),
                 Description: "The AD Domain controller to apply changes to. ",
-            },
-            "server": &schema.Schema{
-                Type:        schema.TypeString,
-                Optional:    true,
-                DefaultFunc: schema.EnvDefaultFunc("SERVER", nil),
-                Description: "The WinRM host to connect to.",
-            },
-            "usessl": &schema.Schema{
-                Type:        schema.TypeString,
-                Optional:    true,
-                DefaultFunc: schema.EnvDefaultFunc("USESSL", false),
-                Description: "Whether or not to use HTTPS to connect to WinRM",
-            },
-            "usessh": &schema.Schema{
-                Type:        schema.TypeString,
-                Optional:    true,
-                DefaultFunc: schema.EnvDefaultFunc("USESSH", false),
-                Description: "Whether or not to use SSH to connect to WinRM",
             },
         },
         ResourcesMap: map[string]*schema.Resource{
@@ -58,46 +28,18 @@ func Provider() terraform.ResourceProvider {
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-    username := d.Get("username").(string)
-    if username == "" {
-        return nil, fmt.Errorf("The 'username' property was not specified.")
-    }
-    
-    usessh := d.Get("usessh").(string)
-
-    password := d.Get("password").(string)
-    if password == "" && usessh == "0" {
-            return nil, fmt.Errorf("The 'password' property was not specified and usessh was false.")
-    }
-
-    server := d.Get("server").(string)
-    if server == "" {
-        return nil, fmt.Errorf("The 'server' property was not specified.")
-    }
     domain_controller := d.Get("domain_controller").(string)
     if domain_controller == "" {
-        domain_controller = server
+        return nil, fmt.Errorf("The 'domain_controller' property was not specified.")
     }
 
-    usessl := d.Get("usessl").(string)
-
     client := DNSClient {
-        username:           username,
-        password:           password,
         domain_controller:  domain_controller,
-        server:             server,
-        usessl:             usessl,
-        usessh:             usessh,
     }
 
     return &client, nil
 }
 
 type DNSClient struct {
-    username            string
-    password            string
     domain_controller   string
-    server              string
-    usessl              string
-    usessh              string
-}       
+}
