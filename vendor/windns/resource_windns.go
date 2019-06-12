@@ -30,8 +30,6 @@ if ($record) {
         'A'     { $newRecord.RecordData.IPv4Address = '{{.IPv4Address }}' }
         'CNAME' { $newRecord.RecordData.HostNameAlias = '{{.HostnameAlias}}' }
     }
-    $newRecord.RecordType = '{{.RecordType}}'
-    $newRecord.HostName = '{{.RecordName}}'
     Set-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -OldInputObject $record -NewInputObject $newRecord -PassThru -ComputerName '{{.DomainController}}'
 }
 else {
