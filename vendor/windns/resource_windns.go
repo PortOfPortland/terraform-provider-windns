@@ -27,8 +27,8 @@ if ($record) {
     Write-Host 'Existing Record Found, Modifying record.'
     Switch ('{{.RecordType}}')
     {
-        'A'     { $newRecord.RecordData = '{{.IPv4Address }}' }
-        'CNAME' { $newRecord.RecordData = '{{.HostnameAlias}}' }
+        'A'     { $newRecord.RecordData.IPv4Address = '{{.IPv4Address }}' }
+        'CNAME' { $newRecord.RecordData.HostNameAlias = '{{.HostnameAlias}}' }
     }
     $newRecord.RecordType = '{{.RecordType}}'
     $newRecord.HostName = '{{.RecordName}}'
