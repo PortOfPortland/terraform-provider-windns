@@ -32,7 +32,7 @@ if ($record) {
     }
     $newRecord.RecordType = '{{.RecordType}}'
     $newRecord.HostName = '{{.RecordName}}'
-    Set-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -OldObject $record -NewObject $newRecord -PassThru -ComputerName '{{.DomainController}}' }
+    Set-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -OldObject $record -NewObject $newRecord -PassThru -ComputerName '{{.DomainController}}'
 }
 else {
     Write-Host 'Creating record.'
