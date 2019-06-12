@@ -83,8 +83,8 @@ func resourceWinDNSRecordCreate(d *schema.ResourceData, m interface{}) error {
     record := DNSRecord {
         Id: d.Get("zone_name").(string) + "_" + d.Get("record_name").(string) + "_" + d.Get("record_type").(string),
         ZoneName: d.Get("zone_name").(string),
-        RecordName: d.Get("record_type").(string),
-        RecordType: d.Get("record_name").(string),
+        RecordName: d.Get("record_name").(string),
+        RecordType: d.Get("record_type").(string),
         IPv4Address: d.Get("ipv4address").(string),
         HostnameAlias: d.Get("hostnamealias").(string),
         DomainController: client.domain_controller,
