@@ -39,8 +39,8 @@ else {
     Write-Host 'Creating record.'
     Switch ('{{.RecordType}}')
     {
-        'A'     { Add-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -RRType '{{.RecordType}}' -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -IPv4Address '{{.IPv4Address}}' }
-        'CNAME' { Add-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -RRType '{{.RecordType}}' -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -HostNameAlias '{{.HostnameAlias}}' }
+        'A'     { Add-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -{{.RecordType}} -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -IPv4Address '{{.IPv4Address}}' }
+        'CNAME' { Add-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -{{.RecordType}} -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -HostNameAlias '{{.HostnameAlias}}' }
     }
 }`
 
