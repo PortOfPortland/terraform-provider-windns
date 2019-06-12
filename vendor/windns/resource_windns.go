@@ -34,7 +34,7 @@ if ($record -and $record.RecordType -eq '{{.RecordType}}') {
 }
 else {
     if ($record) {
-        Remove-DnsServerResourceRecord -InputObject $record -ZoneName '{{.ZoneName}}' -ComputerName '{{DomainController}}' -PassThru -Force
+        Remove-DnsServerResourceRecord -InputObject $record -ZoneName '{{.ZoneName}}' -ComputerName '{{.DomainController}}' -PassThru -Force
     }
     Write-Host 'Creating record.'
     Switch ('{{.RecordType}}')
