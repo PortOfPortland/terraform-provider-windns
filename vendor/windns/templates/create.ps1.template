@@ -1,0 +1,23 @@
+try { 
+    $record = Get-DnsServerResourceRecord `
+        -ZoneName "{{zone_name}}" `
+        -RRType "{{record_type}}" `
+        -Name "{{record_name}}" `
+        -ComputerName "{{domain_controller}}" `
+        -ErrorAction Stop 
+} catch { $record = $null }; 
+if ($record) { 
+    Write-Host 'Existing Record Found, Modifying record.'
+    Set-DnsServerResourceRecord `
+        -ZoneName "{{zone_name}}" `
+        -RRType "{{record_type}}" `
+        -Name "{{record_name}}" `
+        -ComputerName "{{domain_controller}}" `
+}
+else {
+    Add-DnsServerResourceRecord `
+    -ZoneName "{{zone_name}}" `
+    -RRType "{{record_type}}" `
+    -Name "{{record_name}}" `
+    -ComputerName "{{domain_controller}}" `
+}

@@ -3,9 +3,42 @@ package windns
 import (
     "github.com/hashicorp/terraform/helper/schema"
     "runpwsh"
+    "bytes"
     "errors"
     "strings"
+    "text/template"
 )
+
+type DNSRecord struct {
+    Id string
+    ZoneName string
+    RecordType string
+    RecordName string
+    IPv4Address string
+    HostnameAlias string
+    DomainController string
+} 
+
+var createTemplate = `
+try { 
+    $record = Get-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -RRType '{{.RecordType}}' -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -ErrorAction Stop 
+} catch { $record = $null }; 
+if ($record) { 
+    Write-Host 'Existing Record Found, Modifying record.'
+    Switch ('{{.RecordType}}')
+    {
+        'A'     { Set-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -RRType '{{.RecordType}}' -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -IPv4Address '{{.IPv4Address}}' }
+        'CNAME' { Set-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -RRType '{{.RecordType}}' -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -HostNameAlias '{{.HostnameAlias}}' }
+    }
+}
+else {
+    Write-Host 'Creating record.'
+    Switch ('{{.RecordType}}')
+    {
+        'A'     { Add-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -RRType '{{.RecordType}}' -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -IPv4Address '{{.IPv4Address}}' }
+        'CNAME' { Add-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -RRType '{{.RecordType}}' -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -HostNameAlias '{{.HostnameAlias}}' }
+    }
+}`
 
 func resourceWinDNSRecord() *schema.Resource {
     return &schema.Resource{
@@ -47,39 +80,49 @@ func resourceWinDNSRecordCreate(d *schema.ResourceData, m interface{}) error {
     //convert the interface so we can use the variables like username, etc
     client := m.(*DNSClient)
 
-    domain_controller := client.domain_controller
-    zone_name := d.Get("zone_name").(string)
-    record_type := d.Get("record_type").(string)
-    record_name := d.Get("record_name").(string)
-    ipv4address := d.Get("ipv4address").(string)
-    hostnamealias := d.Get("hostnamealias").(string)
+    record := DNSRecord {
+        Id: d.Get("zone_name").(string) + "_" + d.Get("record_name").(string) + "_" + d.Get("record_type").(string),
+        ZoneName: d.Get("zone_name").(string),
+        RecordName: d.Get("record_type").(string),
+        RecordType: d.Get("record_name").(string),
+        IPv4Address: d.Get("ipv4address").(string),
+        HostnameAlias: d.Get("hostnamealias").(string),
+        DomainController: client.domain_controller,
+    }
 
-    var id string = zone_name + "_" + record_name + "_" + record_type
+    t := template.New("CreateTemplate")
+    t, err := t.Parse(createTemplate)
+    if err != nil {
+        return err
+    }
 
-    var psCommand string
+    var createComandBuffer bytes.Buffer
+    if err := t.Execute(&createComandBuffer, record); err != nil {
+        return err
+    }
 
-    switch record_type {
+    createCommand := createComandBuffer.String()
+
+    switch record.RecordType {
         case "A":
-            if ipv4address == "" {
+            if record.IPv4Address == "" {
                 return errors.New("Must provide ipv4address if record_type is 'A'")
             }
-            psCommand = "Add-DNSServerResourceRecord -ZoneName " + zone_name + " -" + record_type + " -Name " + record_name + " -IPv4Address " + ipv4address + " -ComputerName " + domain_controller
         case "CNAME":
-            if hostnamealias == "" {
+            if record.HostnameAlias == "" {
                 return errors.New("Must provide hostnamealias if record_type is 'CNAME'")
             }
-            psCommand = "Add-DNSServerResourceRecord -ZoneName " + zone_name + " -" + record_type + " -Name " + record_name + " -HostNameAlias " + hostnamealias + " -ComputerName " + domain_controller
         default:
             return errors.New("Unknown record type. This provider currently only supports 'A' and 'CNAME' records.")
     }
 
-        _, err := runpwsh.RunPowershellCommand(psCommand)
+    _, err = runpwsh.RunPowershellCommand(createCommand)
     if err != nil {
         //something bad happened
         return err
     }
 
-    d.SetId(id)
+    d.SetId(record.Id)
 
     return nil
 }
