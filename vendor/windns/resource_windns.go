@@ -23,7 +23,7 @@ var createTemplate = `
 try { 
     $newRecord = $record = Get-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -RRType '{{.RecordType}}' -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -ErrorAction Stop 
 } catch { $record = $null }; 
-if ($record) { 
+if ($record -and $record.RecordType -eq '{{.RecordType}}') { 
     Write-Host 'Existing Record Found, Modifying record.'
     Switch ('{{.RecordType}}')
     {
@@ -33,6 +33,9 @@ if ($record) {
     Set-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -OldInputObject $record -NewInputObject $newRecord -PassThru -ComputerName '{{.DomainController}}'
 }
 else {
+    if ($record) {
+        Remove-DnsServerResourceRecord -InputObject $record -ZoneName '{{.ZoneName}}' -ComputerName '{{DomainController}}' -PassThru -Force
+    }
     Write-Host 'Creating record.'
     Switch ('{{.RecordType}}')
     {
