@@ -21,15 +21,18 @@ type DNSRecord struct {
 
 var createTemplate = `
 try { 
-    $record = Get-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -RRType '{{.RecordType}}' -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -ErrorAction Stop 
+    $newRecord = $record = Get-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -RRType '{{.RecordType}}' -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -ErrorAction Stop 
 } catch { $record = $null }; 
 if ($record) { 
     Write-Host 'Existing Record Found, Modifying record.'
     Switch ('{{.RecordType}}')
     {
-        'A'     { Set-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -RRType '{{.RecordType}}' -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -IPv4Address '{{.IPv4Address}}' }
-        'CNAME' { Set-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -RRType '{{.RecordType}}' -Name '{{.RecordName}}' -ComputerName '{{.DomainController}}' -HostNameAlias '{{.HostnameAlias}}' }
+        'A'     { $newRecord.RecordData = '{{.IPv4Address }}' }
+        'CNAME' { $newRecord.RecordData = '{{.HostnameAlias}}' }
     }
+    $newRecord.RecordType = '{{.RecordType}}'
+    $newRecord.HostName = '{{.RecordName}}'
+    Set-DnsServerResourceRecord -ZoneName '{{.ZoneName}}' -OldObject $record -NewObject $newRecord -PassThru -ComputerName '{{.DomainController}}' }
 }
 else {
     Write-Host 'Creating record.'
