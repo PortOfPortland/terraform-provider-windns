@@ -47,6 +47,25 @@ resource "windns" "dnscname" {
 
 # Building
 0. Make sure you have $GOPATH set ($env:GOPATH='c:\wip\go' on Windows, etc)
-1. go get github.com\portofportland\terraform-provider-windns
+1. git clone https://github.com/PortOfPortland/terraform-provider-windns
 2. cd github.com\portofportland\terraform-provider-windns
-3. go build
+3. switch to a feature branch
+```
+git checkout -b myfeature
+```
+4. get the dependencies
+```
+go get
+```
+5. prune any unnecessary dependencies
+```
+go mod tidy
+```
+6. vendor our dependencies
+```
+go mod vendor
+```
+7. build the module
+```
+go build
+```
