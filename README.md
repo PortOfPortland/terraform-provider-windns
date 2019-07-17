@@ -68,4 +68,7 @@ go mod vendor
 7. build the module
 ```
 go build
+
+#cross-compile for windows
+GOOS=windows GOARCH=386 go build -o terraform-provider-windns.exe
 ```
