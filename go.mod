@@ -11,3 +11,5 @@ require (
 	github.com/portofportland/goPSRemoting v0.1.0
 	github.com/zclconf/go-cty v1.0.1-0.20190708163926-19588f92a98f // indirect
 )
+
+go 1.13
