@@ -1,3 +1,4 @@
 *.exe
 vendor
 bin
+dist
