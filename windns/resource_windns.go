@@ -80,7 +80,7 @@ func resourceWinDNSRecordCreate(d *schema.ResourceData, m interface{}) error {
 			if ptrdomainname == "" {
 				return errors.New("Must provide ptrdomainname if record_type is 'PTR'")
 			}
-			psCommand = "Add-DNSServerResourceRecord -ZoneName " + zone_name + " -" + record_type + " -Name " + record_name + " -PtrDomainName " + ptrdomaininame
+			psCommand = "Add-DNSServerResourceRecord -ZoneName " + zone_name + " -" + record_type + " -Name " + record_name + " -PtrDomainName " + ptrdomainname
 		default:
 			return errors.New("Unknown record type. This provider currently only supports 'A', 'CNAME', and 'PTR' records.")
 	}
