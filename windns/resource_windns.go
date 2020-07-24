@@ -41,6 +41,11 @@ func resourceWinDNSRecord() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"ptrdomainname": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -54,6 +59,7 @@ func resourceWinDNSRecordCreate(d *schema.ResourceData, m interface{}) error {
 	record_name := d.Get("record_name").(string)
 	ipv4address := d.Get("ipv4address").(string)
 	hostnamealias := d.Get("hostnamealias").(string)
+	ptrdomainname := d.Get("ptrdomainname").(string)
 
 	var id string = zone_name + "_" + record_name + "_" + record_type
 
@@ -70,8 +76,13 @@ func resourceWinDNSRecordCreate(d *schema.ResourceData, m interface{}) error {
 				return errors.New("Must provide hostnamealias if record_type is 'CNAME'")
 			}
 			psCommand = "Add-DNSServerResourceRecord -ZoneName " + zone_name + " -" + record_type + " -Name " + record_name + " -HostNameAlias " + hostnamealias
+		case "PTR":
+			if ptrdomainname == "" {
+				return errors.New("Must provide ptrdomainname if record_type is 'PTR'")
+			}
+			psCommand = "Add-DNSServerResourceRecord -ZoneName " + zone_name + " -" + record_type + " -Name " + record_name + " -PtrDomainName " + ptrdomaininame
 		default:
-			return errors.New("Unknown record type. This provider currently only supports 'A' and 'CNAME' records.")
+			return errors.New("Unknown record type. This provider currently only supports 'A', 'CNAME', and 'PTR' records.")
 	}
 
         _, err := goPSRemoting.RunPowershellCommand(client.username, client.password, client.server, psCommand, client.usessl, client.usessh)
