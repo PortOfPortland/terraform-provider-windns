@@ -5,6 +5,8 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 
 	"fmt"
+	"os"
+	"io/ioutil"
 )
 
 // Provider allows making changes to Windows DNS server
@@ -71,15 +73,20 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	usessl := d.Get("usessl").(string)
 
+	f, err := ioutil.TempFile("", "terraform-windns")
+	lockfile := f.Name()
+	os.Remove(f.Name())
+
 	client := DNSClient {
 		username:	username,
 		password:	password,
 		server:		server,
 		usessl:		usessl,
-                usessh:         usessh,
+		usessh:     usessh,
+		lockfile:   lockfile,
 	}
 
-	return &client, nil
+	return &client, err
 }
 
 type DNSClient struct {
@@ -87,5 +94,6 @@ type DNSClient struct {
 	password	string
 	server		string
 	usessl		string
-        usessh          string
+	usessh      string
+	lockfile	string
 }

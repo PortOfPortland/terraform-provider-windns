@@ -7,7 +7,35 @@ import (
 
 	"errors"
 	"strings"
+
+	"os"
+	"time"
+	"math/rand"
 )
+
+func fileExists(filename string) bool {
+    info, err := os.Stat(filename)
+    if os.IsNotExist(err) {
+        return false
+    }
+    return !info.IsDir()
+}
+
+func waitForLock(client *DNSClient) bool {
+	
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	time.Sleep(time.Duration(r.Intn(100)) * time.Millisecond)
+
+	locked := fileExists(client.lockfile)
+
+	for locked == true {
+		time.Sleep(100 * time.Millisecond)
+		locked = fileExists(client.lockfile)
+	}
+
+	time.Sleep(1000 * time.Millisecond)
+	return true
+}
 
 func resourceWinDNSRecord() *schema.Resource {
 	return &schema.Resource{
@@ -65,6 +93,13 @@ func resourceWinDNSRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	var psCommand string
 
+	waitForLock(client)
+	
+	file, err := os.Create(client.lockfile)
+	if err != nil {
+		return err
+	}
+
 	switch record_type {
 		case "A":
 			if ipv4address == "" {
@@ -85,13 +120,17 @@ func resourceWinDNSRecordCreate(d *schema.ResourceData, m interface{}) error {
 			return errors.New("Unknown record type. This provider currently only supports 'A', 'CNAME', and 'PTR' records.")
 	}
 
-        _, err := goPSRemoting.RunPowershellCommand(client.username, client.password, client.server, psCommand, client.usessl, client.usessh)
+	_, err = goPSRemoting.RunPowershellCommand(client.username, client.password, client.server, psCommand, client.usessl, client.usessh)
+
 	if err != nil {
 		//something bad happened
 		return err
 	}
 
 	d.SetId(id)
+
+	file.Close()
+	os.Remove(client.lockfile)
 
 	return nil
 }
@@ -128,6 +167,14 @@ func resourceWinDNSRecordDelete(d *schema.ResourceData, m interface{}) error {
 	//convert the interface so we can use the variables like username, etc
 	client := m.(*DNSClient)
 
+	
+	waitForLock(client)
+	
+	file, err := os.Create(client.lockfile)
+	if err != nil {
+		return err
+	}
+
 	zone_name := d.Get("zone_name").(string)
 	record_type := d.Get("record_type").(string)
 	record_name := d.Get("record_name").(string)
@@ -135,7 +182,7 @@ func resourceWinDNSRecordDelete(d *schema.ResourceData, m interface{}) error {
 	//Remove-DnsServerResourceRecord -ZoneName "contoso.com" -RRType "A" -Name "Host01"
 	var psCommand string = "Remove-DNSServerResourceRecord -ZoneName " + zone_name + " -RRType " + record_type + " -Name " + record_name + " -Confirm:$false -Force"
 
-        _, err := goPSRemoting.RunPowershellCommand(client.username, client.password, client.server, psCommand, client.usessl, client.usessh)
+        _, err = goPSRemoting.RunPowershellCommand(client.username, client.password, client.server, psCommand, client.usessl, client.usessh)
 	if err != nil {
 		//something bad happened
 		return err
@@ -143,6 +190,9 @@ func resourceWinDNSRecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	// d.SetId("") is automatically called assuming delete returns no errors, but it is added here for explicitness.
 	d.SetId("")
+
+	file.Close()
+	os.Remove(client.lockfile)
 
 	return nil
 }
