@@ -5,8 +5,8 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 
 	"fmt"
-	"os"
 	"io/ioutil"
+	"os"
 )
 
 // Provider allows making changes to Windows DNS server
@@ -38,12 +38,18 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("USESSL", false),
 				Description: "Whether or not to use HTTPS to connect to WinRM",
 			},
-                        "usessh": &schema.Schema{
-                                Type:        schema.TypeString,
-                                Optional:    true,
-                                DefaultFunc: schema.EnvDefaultFunc("USESSH", false),
-                                Description: "Whether or not to use SSH to connect to WinRM",
-                        },
+			"usessh": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("USESSH", false),
+				Description: "Whether or not to use SSH to connect to WinRM",
+			},
+			"usejumphost": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("USEJUMPHOST", false),
+				Description: "Use jump host",
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"windns": resourceWinDNSRecord(),
@@ -58,13 +64,14 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	if username == "" {
 		return nil, fmt.Errorf("The 'username' property was not specified.")
 	}
-	
-        usessh := d.Get("usessh").(string)
 
-        password := d.Get("password").(string)
-        if password == "" && usessh == "0" {
-                return nil, fmt.Errorf("The 'password' property was not specified and usessh was false.")
-        }
+	usessh := d.Get("usessh").(string)
+	usejumphost := d.Get("usejumphost").(string)
+
+	password := d.Get("password").(string)
+	if password == "" && usessh == "0" {
+		return nil, fmt.Errorf("The 'password' property was not specified and usessh was false.")
+	}
 
 	server := d.Get("server").(string)
 	if server == "" {
@@ -77,23 +84,25 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	lockfile := f.Name()
 	os.Remove(f.Name())
 
-	client := DNSClient {
-		username:	username,
-		password:	password,
-		server:		server,
-		usessl:		usessl,
-		usessh:     usessh,
-		lockfile:   lockfile,
+	client := DNSClient{
+		username:    username,
+		password:    password,
+		server:      server,
+		usessl:      usessl,
+		usessh:      usessh,
+		usejumphost: usejumphost,
+		lockfile:    lockfile,
 	}
 
 	return &client, err
 }
 
 type DNSClient struct {
-	username	string
-	password	string
-	server		string
-	usessl		string
+	username    string
+	password    string
+	server      string
+	usessl      string
 	usessh      string
-	lockfile	string
+	usejumphost string
+	lockfile    string
 }
