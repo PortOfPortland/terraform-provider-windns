@@ -274,13 +274,15 @@ github.com/packer-community/winrmcp v0.0.0-20180102160824-81144009af58/go.mod h1
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pawelwiecaszek/goPSRemoting v0.2.0 h1:B8JL9kALS8bQWZccJKOgxp6/0vAl7TMQXiTk/rF87wo=
 github.com/pawelwiecaszek/goPSRemoting v0.2.0/go.mod h1:QNDVz8FjUK4dwTPMTckPh2w0ltgYQVKCOIlGcuXC9BY=
+github.com/pawelwiecaszek/goPSRemoting v0.3.0 h1:H9Uw5WZkLu1nRIll9IeuTymSftwa1pNhwPhW4gPDxtc=
+github.com/pawelwiecaszek/goPSRemoting v0.3.0/go.mod h1:QNDVz8FjUK4dwTPMTckPh2w0ltgYQVKCOIlGcuXC9BY=
+github.com/pawelwiecaszek/goPSRemoting v0.4.0 h1:+L8jTyEk5BsooDG1sspGOOny/Dl8QXL+tzYtoor9lyc=
+github.com/pawelwiecaszek/goPSRemoting v0.4.0/go.mod h1:QNDVz8FjUK4dwTPMTckPh2w0ltgYQVKCOIlGcuXC9BY=
 github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4/go.mod h1:4OwLy04Bl9Ef3GJJCoec+30X3LQs/0/m4HFRt/2LUSA=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/portofportland/goPSRemoting v0.2.0 h1:uTiHS/qhvWvQriwOo8oKpzL2rfmF3FaT/oOVpCadee8=
-github.com/portofportland/goPSRemoting v0.2.0/go.mod h1:4wIhIv4GV1eSnue82kzba3oJb+gFGHhg+NO1sqMMYY8=
 github.com/posener/complete v1.1.1/go.mod h1:em0nMJCgc9GFtwrmVmEMR/ZL6WyhyjMBndrE9hABlRI=
 github.com/posener/complete v1.2.1 h1:LrvDIY//XNo65Lq84G/akBuMGlawHvGBABv8f/ZN6DI=
 github.com/posener/complete v1.2.1/go.mod h1:6gapUrK/U1TAN7ciCoNRIdVC5sbdBTUh1DKN0g6uH7E=
