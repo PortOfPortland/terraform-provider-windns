@@ -107,6 +107,10 @@ func resourceWinDNSRecordCreate(d *schema.ResourceData, m interface{}) error {
 		psServerName = ""
 	}
 
+	if client.autocreateptr == "1" && record_type == "A" {
+		psServerName += " -CreatePtr"
+	}
+
 	switch record_type {
 	case "A":
 		if ipv4address == "" {
@@ -205,7 +209,7 @@ func resourceWinDNSRecordDelete(d *schema.ResourceData, m interface{}) error {
 	var psCommand string = "Remove-DNSServerResourceRecord -ZoneName " + zone_name + " -RRType " + record_type + " -Name " + record_name + " -Confirm:$false -Force" + psServerName
 
 	if client.usejumphost == "1" {
-		psCommand = "Get-DnsServerResourceRecord -ZoneName " + zone_name + " -RRType " + record_type + " -Name " + record_name + psServerName + " | " + "Remove-DNSServerResourceRecord -ZoneName " + zone_name + " -Confirm:$false -Force" + psServerName
+		psCommand = "\"& { $record = Get-DnsServerResourceRecord -ZoneName " + zone_name + " -RRType " + record_type + " -Name " + record_name + psServerName + "; " + "Remove-DNSServerResourceRecord -ZoneName " + zone_name + " -Confirm:$false -Force -InputObject $record" + psServerName + "}\""
 	}
 
 	_, err = goPSRemoting.RunPowershellCommand(client.username, client.password, client.server, psCommand, client.usessl, client.usessh)

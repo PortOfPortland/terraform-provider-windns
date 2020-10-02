@@ -50,6 +50,12 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("USEJUMPHOST", false),
 				Description: "Use jump host",
 			},
+			"autocreateptr": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("USEJUMPHOST", false),
+				Description: "Automatically create ptr record with A record.",
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"windns": resourceWinDNSRecord(),
@@ -67,6 +73,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	usessh := d.Get("usessh").(string)
 	usejumphost := d.Get("usejumphost").(string)
+	autocreateptr := d.Get("autocreateptr").(string)
 
 	password := d.Get("password").(string)
 	if password == "" && usessh == "0" {
@@ -85,24 +92,26 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	os.Remove(f.Name())
 
 	client := DNSClient{
-		username:    username,
-		password:    password,
-		server:      server,
-		usessl:      usessl,
-		usessh:      usessh,
-		usejumphost: usejumphost,
-		lockfile:    lockfile,
+		username:      username,
+		password:      password,
+		server:        server,
+		usessl:        usessl,
+		usessh:        usessh,
+		usejumphost:   usejumphost,
+		lockfile:      lockfile,
+		autocreateptr: autocreateptr,
 	}
 
 	return &client, err
 }
 
 type DNSClient struct {
-	username    string
-	password    string
-	server      string
-	usessl      string
-	usessh      string
-	usejumphost string
-	lockfile    string
+	username      string
+	password      string
+	server        string
+	usessl        string
+	usessh        string
+	usejumphost   string
+	lockfile      string
+	autocreateptr string
 }
