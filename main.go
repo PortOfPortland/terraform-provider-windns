@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/hashicorp/terraform/plugin"
-	"github.com/portofportland/terraform-provider-windns/windns"
+	"github.com/rfranks-securenet/terraform-provider-windns/windns"
 )
 
 func main() {

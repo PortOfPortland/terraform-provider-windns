@@ -1,4 +1,4 @@
-module github.com/portofportland/terraform-provider-windns
+module github.com/rfranks-securenet/terraform-provider-windns
 
 go 1.13
 
