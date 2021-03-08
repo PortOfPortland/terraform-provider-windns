@@ -64,6 +64,11 @@ func resourceWinDNSRecord() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"ipv6address": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"hostnamealias": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -106,6 +111,11 @@ func resourceWinDNSRecordCreate(d *schema.ResourceData, m interface{}) error {
 				return errors.New("Must provide ipv4address if record_type is 'A'")
 			}
 			psCommand = "Add-DNSServerResourceRecord -ZoneName " + zone_name + " -" + record_type + " -Name " + record_name + " -IPv4Address " + ipv4address
+		case "AAAA":
+			if ipv6address == "" {
+				return errors.New("Must provide ipv6address if record_type is 'AAAA'")
+			}
+			psCommand = "Add-DNSServerResourceRecord -ZoneName " + zone_name + " -" + record_type + " -Name " + record_name + " -IPv6Address " + ipv4address
 		case "CNAME":
 			if hostnamealias == "" {
 				return errors.New("Must provide hostnamealias if record_type is 'CNAME'")
