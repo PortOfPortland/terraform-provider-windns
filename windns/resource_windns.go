@@ -122,15 +122,15 @@ func resourceWinDNSRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	_, err = goPSRemoting.RunPowershellCommand(client.username, client.password, client.server, psCommand, client.usessl, client.usessh)
 
+	file.Close()
+	os.Remove(client.lockfile)
+
 	if err != nil {
 		//something bad happened
 		return err
 	}
 
 	d.SetId(id)
-
-	file.Close()
-	os.Remove(client.lockfile)
 
 	return nil
 }
@@ -167,9 +167,8 @@ func resourceWinDNSRecordDelete(d *schema.ResourceData, m interface{}) error {
 	//convert the interface so we can use the variables like username, etc
 	client := m.(*DNSClient)
 
-	
 	waitForLock(client)
-	
+
 	file, err := os.Create(client.lockfile)
 	if err != nil {
 		return err
@@ -183,6 +182,10 @@ func resourceWinDNSRecordDelete(d *schema.ResourceData, m interface{}) error {
 	var psCommand string = "Remove-DNSServerResourceRecord -ZoneName " + zone_name + " -RRType " + record_type + " -Name " + record_name + " -Confirm:$false -Force"
 
         _, err = goPSRemoting.RunPowershellCommand(client.username, client.password, client.server, psCommand, client.usessl, client.usessh)
+
+	file.Close()
+	os.Remove(client.lockfile)
+
 	if err != nil {
 		//something bad happened
 		return err
@@ -190,9 +193,6 @@ func resourceWinDNSRecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	// d.SetId("") is automatically called assuming delete returns no errors, but it is added here for explicitness.
 	d.SetId("")
-
-	file.Close()
-	os.Remove(client.lockfile)
 
 	return nil
 }
