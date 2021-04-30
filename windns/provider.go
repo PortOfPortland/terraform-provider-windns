@@ -58,7 +58,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	if username == "" {
 		return nil, fmt.Errorf("The 'username' property was not specified.")
 	}
-	
+
         usessh := d.Get("usessh").(string)
 
         password := d.Get("password").(string)
@@ -75,7 +75,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	f, err := ioutil.TempFile("", "terraform-windns")
 	lockfile := f.Name()
-	os.Remove(f.Name())
+	err = f.Close()
+	err = os.Remove(f.Name())
 
 	client := DNSClient {
 		username:	username,
